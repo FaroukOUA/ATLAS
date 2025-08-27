@@ -177,7 +177,6 @@ class FirstAidPage extends StatelessWidget {
           ),
         ),
       ),
-      ),
     );
   }
 
