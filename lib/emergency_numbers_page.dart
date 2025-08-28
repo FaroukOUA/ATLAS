@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
 
 class EmergencyNumbersPage extends StatelessWidget {
@@ -42,9 +41,9 @@ class EmergencyNumbersPage extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Emergency numbers list
             Expanded(
               child: Padding(
@@ -54,7 +53,7 @@ class EmergencyNumbersPage extends StatelessWidget {
                     _buildEmergencyCard(
                       context,
                       title: 'الشرطة',
-                      number: '190',
+                      number: '19',
                       icon: Icons.local_police,
                       color: const Color(0xFF2196F3), // Blue
                       iconBackgroundColor: Colors.white,
@@ -111,7 +110,8 @@ class EmergencyNumbersPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmergencyCard(BuildContext context, {
+  Widget _buildEmergencyCard(
+    BuildContext context, {
     required String title,
     required String number,
     required IconData icon,
@@ -135,7 +135,7 @@ class EmergencyNumbersPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -149,11 +149,7 @@ class EmergencyNumbersPage extends StatelessWidget {
                 color: iconBackgroundColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 32,
-              ),
+              child: Icon(icon, color: color, size: 32),
             ),
             const SizedBox(width: 20),
             if (!isAddButton) ...[
@@ -205,20 +201,14 @@ class EmergencyNumbersPage extends StatelessWidget {
           content: Text(
             'هل تريد الاتصال بالرقم $number؟',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Amiri',
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontFamily: 'Amiri', fontSize: 16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 'إلغاء',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontFamily: 'Amiri', color: Colors.grey),
               ),
             ),
             ElevatedButton(
@@ -234,10 +224,7 @@ class EmergencyNumbersPage extends StatelessWidget {
               ),
               child: const Text(
                 'اتصال',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontFamily: 'Amiri', color: Colors.white),
               ),
             ),
           ],
@@ -260,10 +247,7 @@ class EmergencyNumbersPage extends StatelessWidget {
           title: const Text(
             'إضافة رقم طوارئ جديد',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Amiri',
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontFamily: 'Amiri', fontWeight: FontWeight.bold),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -297,15 +281,13 @@ class EmergencyNumbersPage extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 'إلغاء',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontFamily: 'Amiri', color: Colors.grey),
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                if (nameController.text.isNotEmpty && numberController.text.isNotEmpty) {
+                if (nameController.text.isNotEmpty &&
+                    numberController.text.isNotEmpty) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -327,10 +309,7 @@ class EmergencyNumbersPage extends StatelessWidget {
               ),
               child: const Text(
                 'حفظ',
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontFamily: 'Amiri', color: Colors.white),
               ),
             ),
           ],
@@ -340,11 +319,8 @@ class EmergencyNumbersPage extends StatelessWidget {
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
+
     try {
       if (await canLaunchUrl(launchUri)) {
         await launchUrl(launchUri);
@@ -358,4 +334,3 @@ class EmergencyNumbersPage extends StatelessWidget {
     }
   }
 }
-

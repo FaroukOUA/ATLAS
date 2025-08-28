@@ -5,6 +5,7 @@ class FirstAidData {
   final String icon;
   final String color;
   final String description;
+  final String image; // optional asset path or file name under assets/images
   final WarningInfo warning;
   final List<FirstAidStep> steps;
   final List<String> warnings;
@@ -20,6 +21,7 @@ class FirstAidData {
     required this.icon,
     required this.color,
     required this.description,
+    required this.image,
     required this.warning,
     required this.steps,
     required this.warnings,
@@ -37,15 +39,19 @@ class FirstAidData {
       icon: json['icon'] ?? 'medical_services',
       color: json['color'] ?? '#4CAF50',
       description: json['description'] ?? '',
+      image: json['image'] ?? '',
       warning: WarningInfo.fromJson(json['warning'] ?? {}),
-      steps: (json['steps'] as List<dynamic>?)
-          ?.map((step) => FirstAidStep.fromJson(step))
-          .toList() ?? [],
+      steps:
+          (json['steps'] as List<dynamic>?)
+              ?.map((step) => FirstAidStep.fromJson(step))
+              .toList() ??
+          [],
       warnings: List<String>.from(json['warnings'] ?? []),
       emergencyCall: EmergencyCallInfo.fromJson(json['emergency_call'] ?? {}),
-      assessment: json['assessment'] != null 
-          ? AssessmentInfo.fromJson(json['assessment'])
-          : null,
+      assessment:
+          json['assessment'] != null
+              ? AssessmentInfo.fromJson(json['assessment'])
+              : null,
       specialCases: json['special_cases'],
       additionalInfo: json,
     );
@@ -82,10 +88,7 @@ class WarningInfo {
   final String title;
   final String text;
 
-  WarningInfo({
-    required this.title,
-    required this.text,
-  });
+  WarningInfo({required this.title, required this.text});
 
   factory WarningInfo.fromJson(Map<String, dynamic> json) {
     return WarningInfo(
@@ -119,10 +122,7 @@ class AssessmentInfo {
   final String title;
   final List<String> steps;
 
-  AssessmentInfo({
-    required this.title,
-    required this.steps,
-  });
+  AssessmentInfo({required this.title, required this.steps});
 
   factory AssessmentInfo.fromJson(Map<String, dynamic> json) {
     return AssessmentInfo(
@@ -131,4 +131,3 @@ class AssessmentInfo {
     );
   }
 }
-

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'emergency_button.dart';
 import 'chatbot_page.dart';
 import 'first_aid_page.dart';
 import 'emergency_numbers_page.dart';
+import 'nearby_hospitals_page.dart';
+import 'protection_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,7 +52,7 @@ class MyHomePage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'أطلس',
+                  'ATLAS Care',
                   style: TextStyle(
                     fontFamily: 'Amiri',
                     fontSize: 36,
@@ -58,7 +61,7 @@ class MyHomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Main content container
               Expanded(
                 child: Container(
@@ -69,7 +72,7 @@ class MyHomePage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -77,57 +80,11 @@ class MyHomePage extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      // Emergency section
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20.0),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD32F2F), // Red color
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.red.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.medical_services,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            const SizedBox(width: 15),
-                            const Text(
-                              'طوارئ',
-                              style: TextStyle(
-                                fontFamily: 'Amiri',
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
+                      // Emergency section with functional button
+                      EmergencyButton(),
+
                       const SizedBox(height: 30),
-                      
+
                       // Service buttons grid
                       Expanded(
                         child: GridView.count(
@@ -143,7 +100,9 @@ class MyHomePage extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const FirstAidPage()),
+                                  MaterialPageRoute(
+                                    builder: (context) => const FirstAidPage(),
+                                  ),
                                 );
                               },
                             ),
@@ -154,7 +113,11 @@ class MyHomePage extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const EmergencyNumbersPage()),
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const EmergencyNumbersPage(),
+                                  ),
                                 );
                               },
                             ),
@@ -163,7 +126,14 @@ class MyHomePage extends StatelessWidget {
                               icon: Icons.local_hospital,
                               title: 'المستشفيات القريبة',
                               onTap: () {
-                                // TODO: Navigate to nearby hospitals page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const NearbyHospitalsPage(),
+                                  ),
+                                );
                               },
                             ),
                             _buildServiceCard(
@@ -173,7 +143,23 @@ class MyHomePage extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const ChatbotPage()),
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChatbotPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildServiceCard(
+                              context,
+                              icon: Icons.security,
+                              title: 'الحماية',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const ProtectionPage(),
+                                  ),
                                 );
                               },
                             ),
@@ -191,52 +177,54 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceCard(BuildContext context, {
+  Widget _buildServiceCard(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF4A7043),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF4A7043).withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF4A7043),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4A7043).withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF4A7043),
-                size: 35,
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: const Color(0xFF4A7043), size: 35),
               ),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontFamily: 'Amiri',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              const SizedBox(height: 15),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Amiri',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
