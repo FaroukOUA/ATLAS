@@ -1,0 +1,16 @@
+# Azure Speech Services Requirements
+azure-cognitiveservices-speech==1.34.0
+
+# Flask API Server
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# Optional: For environment variable management
+python-dotenv==1.0.0
+
+# Optional: For enhanced logging and utilities
+colorama==0.4.6
+
+# HTTP requests
+requests==2.31.0
+

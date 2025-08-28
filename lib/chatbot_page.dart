@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'services/rag_service.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatbotPage extends StatefulWidget {
   final String? initialTopic;
@@ -14,22 +16,26 @@ class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
+  final RAGService _ragService = RAGService();
+  List<KnowledgeChunk> _lastRetrievedInfo = [];
 
   // Initialize Google AI model
   final generationConfig = GenerationConfig();
   final systemInstruction = Content.system('''
-    You are a first aid medical assistant chatbot named "مساعد الإسعافات الأولية" (First Aid Assistant), inspired by the warm and welcoming spirit of Ifrane, Morocco. Always respond in clear, formal Arabic (Fusha), using an intuitive, friendly, and empathetic tone that reflects the hospitality and calm demeanor of an Ifrane local. Your goal is to provide accurate, step-by-step first aid guidance based on trusted medical information retrieved from an Arabic knowledge base, making users feel supported as if guided by a kind neighbor from Ifrane’s serene mountain community.
+    You are a first aid medical assistant chatbot named "مساعد الإسعافات الأولية" (First Aid Assistant), inspired by the warm and welcoming spirit of Morocco. Always respond in clear, moroccan Arabic (Darija), using an intuitive, friendly, and empathetic tone that reflects the hospitality and calm demeanor of an Ifrane local. Your goal is to provide accurate, step-by-step first aid guidance based on trusted medical information retrieved from an Arabic knowledge base, making users feel supported as if guided by a kind neighbor from Ifrane’s serene mountain community.
 
     Follow these guidelines:
-    1. **Tone and Personality**: Embody the warmth and tranquility of Ifrane. Be approachable, reassuring, and community-oriented, like a trusted friend from a small town. Use phrases that evoke care, e.g., "أنا هنا لأساعدك بكل هدوء، كما لو كنا نتحدث في ظلال أشجار الأرز بإفران." Explain first aid steps simply, avoiding complex medical terms unless clarified (e.g., "النزيف" explained as "خروج الدم"). Show empathy, e.g., "أعلم أن هذا قد يكون مقلقًا، لكن دعنا نتعامل معه خطوة بخطوة."
+    1. **Tone and Personality**: Embody the warmth and tranquility of Morocco. Be approachable, reassuring, and community-oriented, like a trusted friend from a small town. Use phrases that evoke care, e.g., "أنا هنا لأساعدك بكل هدوء، كما لو كنا نتحدث في ظلال أشجار الأرز بإفران." Explain first aid steps simply, avoiding complex medical terms unless clarified (e.g., "النزيف" explained as "خروج الدم"). Show empathy, e.g., "أعلم أن هذا قد يكون مقلقًا، لكن دعنا نتعامل معه خطوة بخطوة."
     2. **Response Structure**: Provide answers in numbered lists or clear paragraphs for readability. Offer practical, actionable steps, e.g., "1. اغسل الجرح بالماء النظيف لمدة 5 دقائق." If the query is vague, ask politely for clarification, e.g., "من فضلك، هل يمكنك وصف الإصابة بمزيد من التفصيل لأساعدك بأفضل طريقة؟"
     3. **Safety and Disclaimers**: Always end responses with: "هذه المعلومات للأغراض التعليمية فقط. اطلب المساعدة الطبية المهنية فورًا أو اتصل بخدمات الطوارئ إذا كانت الحالة خطيرة."
     4. **Use Retrieved Data**: Incorporate relevant information from the Arabic knowledge base (via RAG) to ensure accuracy. If no relevant data is retrieved, use general first aid knowledge cautiously and emphasize professional help.
-    5. **Cultural Sensitivity**: Reflect Ifrane’s inclusive and hospitable culture. Use polite, formal Arabic phrases (e.g., "من فضلك", "بارك الله فيك"), and avoid regional dialects like Darija. Be mindful of diverse Arabic-speaking users, ensuring broad accessibility.
+    5. **Cultural Sensitivity**: Reflect Ifrane’s inclusive and hospitable culture. Use polite, moroccan Arabic (Darija) phrases (e.g., "من فضلك", "بارك الله فيك").
     6. **Edge Cases**: If the query is unrelated to first aid, respond with Ifrane-inspired warmth but redirect, e.g., "كما في إفران، نحب مشاركة المعرفة المفيدة! هل لديك سؤال عن الإسعافات الأولية، مثل التعامل مع الحروق؟"
+    7. **Use Retrieved Data**: Incorporate relevant information from the Arabic knowledge base (via RAG) to ensure accuracy. If no relevant data is retrieved, use general first aid knowledge cautiously and emphasize professional help.
+    8. **Response size and language**: Keep responses VERY concise (maximum 3-4 sentences or 3-4 numbered steps). Use simple, clear language. Always address the user as "المريض" (male patient) in Arabic. Avoid long explanations.
 
     Example Response:
-    للإجابة على سؤالك حول التعامل مع الحروق البسيطة، دعني أرشدك كما لو كنا نجلس معًا في هدوء إفران:
+    للإجابة على سؤالك حول التعامل مع الحروق البسيطة:
     1. ضع المنطقة المصابة تحت ماء بارد (غير مثلج) لمدة 10-15 دقيقة لتخفيف الألم.
     2. جفف المنطقة بلطف باستخدام قطعة قماش نظيفة.
     3. تجنب فرك الحرق أو وضع الثلج مباشرة.
@@ -45,9 +51,16 @@ class _ChatbotPageState extends State<ChatbotPage> {
   @override
   void initState() {
     super.initState();
+    _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    // Initialize RAG service first
+    await _ragService.initialize();
+    
     // Initialize the model and chat session
     model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       apiKey: 'AIzaSyAKXgi70t9Huc9UG5rTspddYRWxC70Ne6s',
       generationConfig: generationConfig,
       systemInstruction: systemInstruction,
@@ -71,7 +84,21 @@ class _ChatbotPageState extends State<ChatbotPage> {
     });
 
     try {
-      final response = await chat.sendMessage(Content.text(message));
+      // Retrieve relevant information from knowledge base
+      final relevantInfo = _ragService.retrieveRelevantInfo(message);
+      _lastRetrievedInfo = relevantInfo;
+      
+      // Construct enhanced prompt with retrieved information
+      String enhancedPrompt = message;
+      if (relevantInfo.isNotEmpty) {
+        enhancedPrompt += '\n\nمعلومات مرجعية من دليل الإسعافات الأولية:\n';
+        for (final chunk in relevantInfo) {
+          enhancedPrompt += '\n--- ${chunk.title} ---\n${chunk.content}\n';
+        }
+        enhancedPrompt += '\nيرجى استخدام هذه المعلومات المرجعية لتقديم إجابة دقيقة ومفصلة باللغة العربية الدارجة المغربية.';
+      }
+
+      final response = await chat.sendMessage(Content.text(enhancedPrompt));
       setState(() {
         _messages.add({'sender': 'bot', 'text': response.text ?? 'عذرًا، لم أستطع معالجة طلبك.'});
         _isLoading = false;
@@ -99,6 +126,27 @@ class _ChatbotPageState extends State<ChatbotPage> {
       ),
       body: Column(
         children: [
+          // RAG status indicator
+          if (_lastRetrievedInfo.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              color: const Color(0xFFE6F0EA),
+              child: Row(
+                children: [
+                  const Icon(Icons.library_books, size: 16, color: Color(0xFF4A7043)),
+                  const SizedBox(width: 4),
+                  Text(
+                    'تم استخدام ${_lastRetrievedInfo.length} مراجع من دليل الإسعافات الأولية',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF4A7043),
+                      fontFamily: 'Amiri',
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -124,15 +172,42 @@ class _ChatbotPageState extends State<ChatbotPage> {
                       color: isUser ? Colors.grey[200] : const Color(0xFFE6F0EA),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    child: Text(
-                      message['text']!,
-                      style: const TextStyle(
-                        fontFamily: 'Amiri',
-                        fontSize: 16.0,
-                        color: Colors.black87,
-                      ),
-                      textAlign: isUser ? TextAlign.left : TextAlign.right,
-                    ),
+                    child: isUser 
+                      ? Text(
+                          message['text']!,
+                          style: const TextStyle(
+                            fontFamily: 'Amiri',
+                            fontSize: 16.0,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.left,
+                          textDirection: TextDirection.ltr,
+                        )
+                      : Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: MarkdownBody(
+                            data: message['text']!,
+                            styleSheet: MarkdownStyleSheet(
+                              p: const TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: 16.0,
+                                color: Colors.black87,
+                                height: 1.4,
+                              ),
+                              strong: const TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: 16.0,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              listBullet: const TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: 16.0,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
                   ),
                 );
               },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'chatbot_page.dart';
 import 'first_aid_page.dart';
 import 'emergency_numbers_page.dart';
+import 'voice_chat_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -134,7 +135,7 @@ class MyHomePage extends StatelessWidget {
                           crossAxisCount: 2,
                           crossAxisSpacing: 15,
                           mainAxisSpacing: 15,
-                          childAspectRatio: 1.0,
+                          childAspectRatio: 0.9,
                           children: [
                             _buildServiceCard(
                               context,
@@ -160,14 +161,6 @@ class MyHomePage extends StatelessWidget {
                             ),
                             _buildServiceCard(
                               context,
-                              icon: Icons.local_hospital,
-                              title: 'المستشفيات القريبة',
-                              onTap: () {
-                                // TODO: Navigate to nearby hospitals page
-                              },
-                            ),
-                            _buildServiceCard(
-                              context,
                               icon: Icons.chat,
                               title: 'المحادثة الذكية',
                               onTap: () {
@@ -175,6 +168,26 @@ class MyHomePage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(builder: (context) => const ChatbotPage()),
                                 );
+                              },
+                            ),
+                            _buildServiceCard(
+                              context,
+                              icon: Icons.mic,
+                              title: 'المحادثة الصوتية',
+                              subtitle: 'تحدث بالعربية',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const VoiceChatPage()),
+                                );
+                              },
+                            ),
+                            _buildServiceCard(
+                              context,
+                              icon: Icons.local_hospital,
+                              title: 'المستشفيات القريبة',
+                              onTap: () {
+                                // TODO: Navigate to nearby hospitals page
                               },
                             ),
                           ],
@@ -194,6 +207,7 @@ class MyHomePage extends StatelessWidget {
   Widget _buildServiceCard(BuildContext context, {
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -236,6 +250,18 @@ class MyHomePage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 5),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Amiri',
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
           ],
         ),
       ),
