@@ -3,7 +3,7 @@ import '../models/first_aid_models.dart';
 
 class WarningCard extends StatelessWidget {
   final WarningInfo warning;
-  
+
   const WarningCard({super.key, required this.warning});
 
   @override
@@ -47,11 +47,7 @@ class WarningCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Icon(
-            Icons.warning,
-            color: Color(0xFFE53935),
-            size: 24,
-          ),
+          const Icon(Icons.warning, color: Color(0xFFE53935), size: 24),
         ],
       ),
     );
@@ -61,10 +57,10 @@ class WarningCard extends StatelessWidget {
 class FirstAidStepCard extends StatelessWidget {
   final FirstAidStep step;
   final Color accentColor;
-  
+
   const FirstAidStepCard({
-    super.key, 
-    required this.step, 
+    super.key,
+    required this.step,
     required this.accentColor,
   });
 
@@ -77,7 +73,7 @@ class FirstAidStepCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -90,7 +86,7 @@ class FirstAidStepCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -98,11 +94,7 @@ class FirstAidStepCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  _getIconData(step.icon),
-                  color: accentColor,
-                  size: 28,
-                ),
+                Icon(_getIconData(step.icon), color: accentColor, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -154,45 +146,47 @@ class FirstAidStepCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Step details
           if (step.details.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: step.details.map((detail) => 
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            detail,
-                            style: const TextStyle(
-                              fontFamily: 'Amiri',
-                              fontSize: 14,
-                              color: Color(0xFF424242),
-                              height: 1.5,
+                children: [
+                  ...step.details.map(
+                    (detail) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 8.0),
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: accentColor,
+                              shape: BoxShape.circle,
                             ),
-                            textAlign: TextAlign.right,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          margin: const EdgeInsets.only(top: 8.0),
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: accentColor,
-                            shape: BoxShape.circle,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              detail,
+                              style: const TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: 14,
+                                color: Color(0xFF424242),
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.right,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ).toList(),
+                ],
               ),
             ),
         ],
@@ -250,13 +244,13 @@ class FirstAidStepCard extends StatelessWidget {
 
 class WarningListCard extends StatelessWidget {
   final List<String> warnings;
-  
+
   const WarningListCard({super.key, required this.warnings});
 
   @override
   Widget build(BuildContext context) {
     if (warnings.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
@@ -280,20 +274,18 @@ class WarningListCard extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8),
-              Icon(
-                Icons.do_not_disturb,
-                color: Color(0xFFFF9800),
-                size: 24,
-              ),
+              Icon(Icons.do_not_disturb, color: Color(0xFFFF9800), size: 24),
             ],
           ),
           const SizedBox(height: 12),
-          ...warnings.map((warning) => 
-            Padding(
+          ...warnings.map(
+            (warning) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Icon(Icons.close, color: Color(0xFFFF9800), size: 16),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       warning,
@@ -305,16 +297,10 @@ class WarningListCard extends StatelessWidget {
                       textAlign: TextAlign.right,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.close,
-                    color: Color(0xFFFF9800),
-                    size: 16,
-                  ),
                 ],
               ),
             ),
-          ).toList(),
+          ),
         ],
       ),
     );
@@ -323,7 +309,7 @@ class WarningListCard extends StatelessWidget {
 
 class EmergencyCallCard extends StatelessWidget {
   final EmergencyCallInfo emergencyCall;
-  
+
   const EmergencyCallCard({super.key, required this.emergencyCall});
 
   @override
@@ -336,7 +322,7 @@ class EmergencyCallCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFE53935).withOpacity(0.3),
+            color: const Color(0xFFE53935).withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -348,7 +334,10 @@ class EmergencyCallCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -374,16 +363,12 @@ class EmergencyCallCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
-                Icons.phone,
-                color: Colors.white,
-                size: 24,
-              ),
+              const Icon(Icons.phone, color: Colors.white, size: 24),
             ],
           ),
           const SizedBox(height: 12),
-          ...emergencyCall.conditions.map((condition) => 
-            Padding(
+          ...emergencyCall.conditions.map(
+            (condition) => Padding(
               padding: const EdgeInsets.only(bottom: 6.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,10 +393,9 @@ class EmergencyCallCard extends StatelessWidget {
                 ],
               ),
             ),
-          ).toList(),
+          ),
         ],
       ),
     );
   }
 }
-

@@ -5,7 +5,7 @@ import 'widgets/first_aid_widgets.dart';
 
 class FirstAidDetailPage extends StatefulWidget {
   final String topic;
-  
+
   const FirstAidDetailPage({super.key, required this.topic});
 
   @override
@@ -50,44 +50,42 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              accentColor,
-              accentColor.withOpacity(0.8),
-            ],
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [accentColor, accentColor.withValues(alpha: 0.8)],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(),
-              
-              // Content
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 16),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Header
+                _buildHeader(),
+
+                // Content
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
                     ),
+                    child:
+                        isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : firstAidData == null
+                            ? _buildErrorView()
+                            : _buildContent(),
                   ),
-                  child: isLoading 
-                    ? const Center(child: CircularProgressIndicator())
-                    : firstAidData == null
-                        ? _buildErrorView()
-                        : _buildContent(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -99,11 +97,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 28,
-            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -135,7 +129,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -155,6 +149,25 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image (optional)
+          if (firstAidData!.image.isNotEmpty)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(firstAidData!.image, fit: BoxFit.cover),
+            ),
           // Description
           if (firstAidData!.description.isNotEmpty)
             Container(
@@ -166,7 +179,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -188,8 +201,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
           WarningCard(warning: firstAidData!.warning),
 
           // Assessment (if available)
-          if (firstAidData!.assessment != null)
-            _buildAssessmentCard(),
+          if (firstAidData!.assessment != null) _buildAssessmentCard(),
 
           // Steps
           const SizedBox(height: 16),
@@ -203,10 +215,10 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
             ),
           ),
           const SizedBox(height: 8),
-          
-          ...firstAidData!.steps.map((step) => 
-            FirstAidStepCard(step: step, accentColor: accentColor)
-          ).toList(),
+
+          ...firstAidData!.steps.map(
+            (step) => FirstAidStepCard(step: step, accentColor: accentColor),
+          ),
 
           // Warnings
           if (firstAidData!.warnings.isNotEmpty)
@@ -216,8 +228,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
           EmergencyCallCard(emergencyCall: firstAidData!.emergencyCall),
 
           // Additional info sections
-          if (firstAidData!.additionalInfo != null)
-            _buildAdditionalSections(),
+          if (firstAidData!.additionalInfo != null) _buildAdditionalSections(),
 
           const SizedBox(height: 20),
         ],
@@ -235,7 +246,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -254,8 +265,8 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
             ),
           ),
           const SizedBox(height: 12),
-          ...assessment.steps.map((step) => 
-            Padding(
+          ...assessment.steps.map(
+            (step) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +295,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                 ],
               ),
             ),
-          ).toList(),
+          ),
         ],
       ),
     );
@@ -318,7 +329,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -337,12 +348,12 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
             ),
           ),
           const SizedBox(height: 12),
-          ...types.map((type) => 
-            Container(
+          ...types.map(
+            (type) => Container(
               margin: const EdgeInsets.only(bottom: 12.0),
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.1),
+                color: accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -373,7 +384,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                 ],
               ),
             ),
-          ).toList(),
+          ),
         ],
       ),
     );
@@ -388,7 +399,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -414,7 +425,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                 margin: const EdgeInsets.only(bottom: 12.0),
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -442,8 +453,8 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                         ),
                       ),
                     if (caseData['details'] is List)
-                      ...((caseData['details'] as List).map((detail) => 
-                        Padding(
+                      ...((caseData['details'] as List).map(
+                        (detail) => Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,13 +482,13 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
                             ],
                           ),
                         ),
-                      ).toList()),
+                      )),
                   ],
                 ),
               );
             }
             return const SizedBox.shrink();
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -488,11 +499,7 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'لم يتم العثور على المعلومات',
@@ -520,6 +527,8 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
     switch (iconName) {
       case 'favorite':
         return Icons.favorite;
+      case 'favorite_border':
+        return Icons.favorite_border;
       case 'local_fire_department':
         return Icons.local_fire_department;
       case 'air':
@@ -530,9 +539,78 @@ class _FirstAidDetailPageState extends State<FirstAidDetailPage> {
         return Icons.medical_services;
       case 'bug_report':
         return Icons.bug_report;
+      case 'bloodtype':
+        return Icons.bloodtype;
+      case 'bed':
+        return Icons.bed;
+      case 'water_drop':
+        return Icons.water_drop;
+      case 'warning':
+        return Icons.warning;
+      case 'wb_sunny':
+        return Icons.wb_sunny;
+      case 'pets':
+        return Icons.pets;
+      case 'eco':
+        return Icons.eco;
+      case 'monitor_heart':
+        return Icons.monitor_heart;
+      case 'flash_on':
+        return Icons.flash_on;
+      case 'cloud':
+        return Icons.cloud;
+      case 'psychology':
+        return Icons.psychology;
+      case 'headset':
+        return Icons.headset;
+      case 'visibility':
+        return Icons.visibility;
+      case 'science':
+        return Icons.science;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'ac_unit':
+        return Icons.ac_unit;
+      case 'water':
+        return Icons.water;
+      case 'thermostat':
+        return Icons.thermostat;
+      case 'hearing':
+        return Icons.hearing;
+      case 'compress':
+        return Icons.compress;
+      case 'keyboard_arrow_up':
+        return Icons.keyboard_arrow_up;
+      case 'radio_button_checked':
+        return Icons.radio_button_checked;
+      case 'wash':
+        return Icons.cleaning_services;
+      case 'bandage':
+        return Icons.healing;
+      case 'lock':
+        return Icons.lock;
+      case 'remove_circle':
+        return Icons.remove_circle;
+      case 'person':
+        return Icons.person;
+      case 'refresh':
+        return Icons.refresh;
+      case 'phone':
+        return Icons.phone;
+      case 'cake':
+        return Icons.cake;
+      case 'schedule':
+        return Icons.schedule;
+      case 'power_settings_new':
+        return Icons.power_settings_new;
+      case 'security':
+        return Icons.security;
+      case 'block':
+        return Icons.block;
+      case 'cleaning_services':
+        return Icons.cleaning_services;
       default:
         return Icons.medical_services;
     }
   }
 }
-

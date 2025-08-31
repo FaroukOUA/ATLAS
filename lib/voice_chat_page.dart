@@ -117,24 +117,42 @@ class _VoiceChatPageState extends State<VoiceChatPage> with TickerProviderStateM
 
   Future<String?> _speechToText() async {
     try {
+      print('🎤 Calling STT endpoint: $azureServiceUrl/speech-to-text');
+      
       final response = await http.post(
         Uri.parse('$azureServiceUrl/speech-to-text'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'language': 'ar-MA'}),
-      );
+      ).timeout(Duration(seconds: 30));
+      
+      print('STT Response status: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['text'];
+        print('STT Response data: $data');
+        
+        if (data['success'] == true) {
+          return data['text'];
+        } else {
+          print('STT failed: ${data['error']}');
+          _showSnackBar('فشل في التعرف على الصوت: ${data['error']}');
+        }
+      } else {
+        print('STT HTTP error: ${response.statusCode} - ${response.body}');
+        _showSnackBar('خطأ في الاتصال بخدمة التعرف على الصوت');
       }
     } catch (e) {
       print('STT Error: $e');
+      _showSnackBar('خطأ في التعرف على الصوت: $e');
     }
     return null;
   }
 
   Future<bool> _textToSpeech(String text) async {
     try {
+      print('🔊 Calling TTS endpoint: $azureServiceUrl/text-to-speech-file');
+      print('TTS Text: ${text.substring(0, text.length > 50 ? 50 : text.length)}...');
+      
       final response = await http.post(
         Uri.parse('$azureServiceUrl/text-to-speech-file'),
         headers: {'Content-Type': 'application/json'},
@@ -142,15 +160,28 @@ class _VoiceChatPageState extends State<VoiceChatPage> with TickerProviderStateM
           'text': text,
           'voice': 'ar-MA-MounaNeural',
         }),
-      );
+      ).timeout(Duration(seconds: 30));
+      
+      print('TTS Response status: ${response.statusCode}');
+      print('TTS Response size: ${response.bodyBytes.length} bytes');
       
       if (response.statusCode == 200) {
-        // Save audio file temporarily and play it
-        return await _playAudioFromBytes(response.bodyBytes);
+        if (response.bodyBytes.length > 1000) {
+          // Save audio file temporarily and play it
+          return await _playAudioFromBytes(response.bodyBytes);
+        } else {
+          print('TTS response too small, likely an error');
+          _showSnackBar('استجابة صوتية صغيرة جداً، ربما هناك خطأ');
+          return false;
+        }
+      } else {
+        print('TTS HTTP error: ${response.statusCode} - ${response.body}');
+        _showSnackBar('خطأ في تحويل النص إلى صوت');
+        return false;
       }
-      return false;
     } catch (e) {
       print('TTS Error: $e');
+      _showSnackBar('خطأ في تشغيل الصوت: $e');
       return false;
     }
   }
